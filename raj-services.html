@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RAJ SERVICES — Premium Hosting Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060610;--surface:#0d0d1a;--surface2:#13132a;
+  --border:rgba(255,255,255,0.06);
+  --accent:#00d4ff;--accent2:#7c3aed;--accent3:#06ffa5;
+  --text:#e8e8f0;--text-muted:#6b6b8a;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none}
+
+/* ── Cursor ── */
+#cursor{position:fixed;width:10px;height:10px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .2s,height .2s,background .2s}
+#cursor-ring{position:fixed;width:34px;height:34px;border:1.5px solid rgba(0,212,255,.45);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:all .1s ease}
+
+/* ── Canvas ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:1}
+
+/* ── Nav ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:18px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,6,16,.75);backdrop-filter:blur(22px);border-bottom:1px solid var(--border);animation:slide-down .8s cubic-bezier(.22,1,.36,1) both}
+@keyframes slide-down{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.logo{font-size:1.25rem;font-weight:700;letter-spacing:-.03em;color:#fff;display:flex;align-items:center;gap:10px;text-decoration:none;cursor:none}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;animation:hue-spin 8s linear infinite}
+@keyframes hue-spin{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}
+.nav-links{display:flex;gap:6px;list-style:none}
+.nav-links a{color:var(--text-muted);text-decoration:none;font-size:.88rem;font-weight:500;transition:color .2s;position:relative;padding:7px 14px;border-radius:8px;cursor:none}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nav-links a.active{color:var(--accent);background:rgba(0,212,255,.08)}
+.nav-links a.active::after{content:'';position:absolute;bottom:-1px;left:14px;right:14px;height:2px;background:var(--accent);border-radius:2px}
+.nav-cta{padding:9px 22px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:600;font-size:.875rem;border:none;cursor:none;text-decoration:none;transition:opacity .2s,transform .2s;display:inline-block}
+.nav-cta:hover{opacity:.82;transform:translateY(-1px)}
+
+/* ── Page system ── */
+.page{position:absolute;top:0;left:0;right:0;min-height:100vh;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s cubic-bezier(.22,1,.36,1);transform:translateY(24px)}
+.page.active{opacity:1;pointer-events:all;transform:translateY(0);position:relative}
+.page.exit-up{opacity:0;transform:translateY(-24px)}
+
+/* ── Page transition overlay ── */
+#page-overlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--accent),var(--accent2));z-index:150;opacity:0;pointer-events:none;transition:opacity .25s ease}
+#page-overlay.flash{opacity:.08}
+
+/* ── Shared section styles ── */
+.page-hero{padding:160px 60px 80px;max-width:1200px;margin:0 auto;position:relative;z-index:2}
+.page-hero-label{font-size:.75rem;font-weight:600;letter-spacing:.14em;color:var(--accent);text-transform:uppercase;margin-bottom:16px;animation:fade-up .7s .1s both}
+.page-hero-title{font-size:clamp(2.5rem,6vw,5rem);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1;margin-bottom:20px;animation:fade-up .7s .2s both}
+.page-hero-title span{background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--accent));background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:grad-flow 4s linear infinite}
+@keyframes grad-flow{0%{background-position:0% center}100%{background-position:300% center}}
+.page-hero-sub{font-size:1.1rem;font-weight:300;color:var(--text-muted);max-width:520px;line-height:1.75;animation:fade-up .7s .3s both}
+@keyframes fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HOME page ── */
+.hero{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:40px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.06);font-size:.78rem;font-weight:500;color:var(--accent);letter-spacing:.04em;margin-bottom:28px;animation:fade-up .8s .2s cubic-bezier(.22,1,.36,1) both}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:clamp(3rem,8vw,7rem);font-weight:800;line-height:1;letter-spacing:-.04em;margin-bottom:24px;animation:fade-up .8s .35s cubic-bezier(.22,1,.36,1) both}
+.hero h1 .line1{display:block;color:#fff}
+.hero h1 .line2{display:block;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--accent));background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:grad-flow 4s linear infinite}
+.hero p{max-width:560px;font-size:1.12rem;font-weight:300;color:var(--text-muted);line-height:1.75;margin-bottom:48px;animation:fade-up .8s .5s cubic-bezier(.22,1,.36,1) both}
+.hero-btns{display:flex;gap:14px;animation:fade-up .8s .65s cubic-bezier(.22,1,.36,1) both}
+.btn-primary{padding:14px 32px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:.95rem;border:none;cursor:none;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent);opacity:0;transition:opacity .2s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,212,255,.3)}
+.btn-primary:hover::before{opacity:1}
+.btn-outline{padding:14px 32px;border-radius:12px;background:transparent;color:var(--text);font-family:'Outfit',sans-serif;font-weight:500;font-size:.95rem;border:1px solid var(--border);cursor:none;transition:border-color .2s,background .2s,transform .2s}
+.btn-outline:hover{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.05);transform:translateY(-2px)}
+.scroll-hint{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-muted);font-size:.72rem;letter-spacing:.08em;animation:fade-up 1s 1.2s both}
+.scroll-line{width:1px;height:42px;background:linear-gradient(to bottom,transparent,var(--accent));animation:scroll-p 2s ease-in-out infinite}
+@keyframes scroll-p{0%,100%{opacity:.3;transform:scaleY(.8)}50%{opacity:1;transform:scaleY(1)}}
+
+/* Stats */
+.stats-bar{position:relative;z-index:2;display:flex;justify-content:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(13,13,26,.7);backdrop-filter:blur(10px)}
+.stat-item{flex:1;max-width:220px;padding:28px 32px;text-align:center;border-right:1px solid var(--border);opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.stat-item:last-child{border-right:none}
+.stat-item.visible{opacity:1;transform:translateY(0)}
+.stat-num{font-size:2rem;font-weight:700;letter-spacing:-.04em;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:.78rem;color:var(--text-muted);margin-top:4px}
+
+/* ── Animations shared ── */
+@keyframes card-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes shimmer{to{left:160%}}
+@keyframes border-spin{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* ── FEATURES PAGE ── */
+.features-page-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding:0 60px 100px;max-width:1200px;margin:0 auto;position:relative;z-index:2}
+.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;position:relative;overflow:hidden;opacity:0;transform:translateY(40px) scale(.97);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .3s}
+.feature-card.visible{opacity:1;transform:translateY(0) scale(1);animation:card-float 5s ease-in-out infinite;animation-delay:var(--fd,0s)}
+.feature-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,var(--cg,rgba(0,212,255,.08)),transparent 60%);opacity:0;transition:opacity .4s;pointer-events:none}
+.feature-card:hover::before{opacity:1}
+.feature-card::after{content:'';position:absolute;top:-60%;left:-120%;width:55%;height:220%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.07),transparent);transform:skewX(-15deg);pointer-events:none}
+.feature-card:hover::after{animation:shimmer .65s ease forwards}
+.feature-card:hover{border-color:rgba(0,212,255,.3);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 0 1px rgba(0,212,255,.07);animation-play-state:paused;transform:translateY(-9px) scale(1.025) !important}
+.feature-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,rgba(0,212,255,.14),rgba(124,58,237,.1));border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.4rem;transition:transform .3s,box-shadow .3s}
+.feature-card:hover .feature-icon{transform:scale(1.18) rotate(-5deg);box-shadow:0 0 20px rgba(0,212,255,.3)}
+.feature-title{font-size:1.05rem;font-weight:600;color:#fff;margin-bottom:10px}
+.feature-desc{font-size:.875rem;color:var(--text-muted);line-height:1.7}
+/* feature detail tag */
+.feature-tag{display:inline-block;margin-top:14px;padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.06em;border:1px solid rgba(0,212,255,.2);color:var(--accent);background:rgba(0,212,255,.06)}
+
+/* ── PRICING PAGE ── */
+.pricing-page{padding:0 60px 100px;max-width:1200px;margin:0 auto;position:relative;z-index:2}
+/* toggle */
+.billing-toggle{display:flex;align-items:center;gap:16px;margin-bottom:50px;animation:fade-up .6s .3s both}
+.toggle-label{font-size:.9rem;color:var(--text-muted);font-weight:500}
+.toggle-label.active{color:var(--text)}
+.toggle-track{width:52px;height:28px;background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.25);border-radius:20px;cursor:none;position:relative;transition:background .3s}
+.toggle-track.on{background:rgba(0,212,255,.25)}
+.toggle-thumb{width:20px;height:20px;background:var(--accent);border-radius:50%;position:absolute;top:3px;left:4px;transition:left .3s cubic-bezier(.34,1.56,.64,1)}
+.toggle-track.on .toggle-thumb{left:28px}
+.save-badge{padding:3px 10px;border-radius:20px;background:rgba(6,255,165,.1);border:1px solid rgba(6,255,165,.3);color:var(--accent3);font-size:.7rem;font-weight:700;letter-spacing:.06em}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.pricing-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px 30px;position:relative;overflow:hidden;opacity:0;transform:translateY(40px) scale(.97);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1),box-shadow .3s,border-color .3s}
+.pricing-card.visible{opacity:1;transform:translateY(0) scale(1);animation:card-float 6s ease-in-out infinite;animation-delay:var(--fd,0s)}
+.pricing-card:hover{box-shadow:0 32px 80px rgba(0,0,0,.6);border-color:rgba(0,212,255,.2);animation-play-state:paused;transform:translateY(-10px) scale(1.02) !important}
+.pricing-card::after{content:'';position:absolute;top:-60%;left:-120%;width:55%;height:220%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.06),transparent);transform:skewX(-15deg);pointer-events:none}
+.pricing-card:hover::after{animation:shimmer .8s ease forwards}
+.pricing-card.featured{border-color:transparent;background:linear-gradient(155deg,rgba(0,212,255,.06),var(--surface))}
+.pricing-card.featured::before{content:'';position:absolute;inset:-1px;border-radius:21px;padding:1px;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3),var(--accent));background-size:300% 300%;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:border-spin 4s linear infinite;pointer-events:none;z-index:0}
+.popular-tag{position:absolute;top:18px;right:18px;font-size:.64rem;font-weight:700;letter-spacing:.1em;color:var(--accent);background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);padding:4px 10px;border-radius:20px;z-index:2}
+.plan-name{font-size:.8rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px;position:relative;z-index:2}
+.plan-price{font-size:3rem;font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1;margin-bottom:4px;position:relative;z-index:2;transition:all .3s}
+.plan-price span{font-size:1rem;font-weight:400;color:var(--text-muted)}
+.plan-desc{font-size:.82rem;color:var(--text-muted);margin-bottom:28px;position:relative;z-index:2}
+.plan-features{list-style:none;margin-bottom:32px;position:relative;z-index:2}
+.plan-features li{font-size:.875rem;color:var(--text);padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;transition:color .2s,padding-left .2s}
+.plan-features li:hover{color:#fff;padding-left:5px}
+.plan-features li::before{content:'✓';color:var(--accent3);font-weight:700;font-size:.8rem;flex-shrink:0}
+.plan-btn{position:relative;z-index:2}
+
+/* ── CONTACT PAGE ── */
+.contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;padding:0 60px 100px;max-width:1200px;margin:0 auto;position:relative;z-index:2}
+.contact-info{animation:fade-up .7s .2s both}
+.contact-info h3{font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:12px}
+.contact-info p{font-size:.9rem;color:var(--text-muted);line-height:1.7;margin-bottom:32px}
+.contact-method{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;transition:border-color .2s,transform .2s,background .2s;cursor:none;opacity:0;transform:translateX(-20px);transition:opacity .6s ease,transform .6s ease,border-color .3s,background .3s}
+.contact-method.visible{opacity:1;transform:translateX(0)}
+.contact-method:hover{border-color:rgba(0,212,255,.25);background:rgba(0,212,255,.04);transform:translateX(4px) !important}
+.contact-method-icon{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(124,58,237,.1));border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;transition:transform .2s}
+.contact-method:hover .contact-method-icon{transform:scale(1.1) rotate(-5deg)}
+.contact-method-info{}
+.contact-method-label{font-size:.72rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px}
+.contact-method-val{font-size:.9rem;color:#fff;font-weight:500}
+
+/* Contact form */
+.contact-form{animation:fade-up .7s .35s both}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;position:relative;overflow:hidden}
+.form-card::before{content:'';position:absolute;inset:-1px;border-radius:21px;padding:1px;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3),var(--accent));background-size:300% 300%;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:border-spin 6s linear infinite;pointer-events:none}
+.form-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:6px}
+.form-sub{font-size:.82rem;color:var(--text-muted);margin-bottom:28px}
+.form-group{margin-bottom:18px}
+.form-label{font-size:.75rem;font-weight:600;letter-spacing:.06em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;display:block}
+.form-input,.form-textarea,.form-select{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:12px 16px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s;resize:none;cursor:none;appearance:none}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:rgba(0,212,255,.4);box-shadow:0 0 0 3px rgba(0,212,255,.07)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text-muted)}
+.form-textarea{height:110px}
+.form-select option{background:var(--surface)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-submit{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:.95rem;border:none;cursor:none;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;margin-top:4px}
+.form-submit::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent);opacity:0;transition:opacity .2s}
+.form-submit:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,212,255,.3)}
+.form-submit:hover::before{opacity:1}
+.form-success{display:none;text-align:center;padding:20px;color:var(--accent3);font-weight:600;font-size:.95rem}
+.form-success.show{display:block;animation:fade-up .5s both}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:2;border-top:1px solid var(--border);padding:36px 60px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,6,16,.9)}
+.footer-links{display:flex;gap:24px;list-style:none}
+.footer-links a{color:var(--text-muted);text-decoration:none;font-size:.82rem;transition:color .2s;cursor:none}
+.footer-links a:hover{color:var(--text)}
+.footer-copy{font-size:.78rem;color:var(--text-muted)}
+
+/* ── CHATBOT ── */
+#chat-bubble{position:fixed;bottom:30px;right:30px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));cursor:none;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(0,212,255,.4);z-index:9999;border:none;outline:none;animation:pop-in .6s 1.5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop-in{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+#chat-bubble:hover{box-shadow:0 12px 50px rgba(0,212,255,.6),0 0 0 8px rgba(0,212,255,.08)}
+#chat-bubble::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(0,212,255,.35);animation:chat-pulse 2.5s ease-out infinite}
+@keyframes chat-pulse{0%{transform:scale(.9);opacity:.7}70%{transform:scale(1.25);opacity:0}100%{transform:scale(1.25);opacity:0}}
+#chat-bubble .icon-chat,#chat-bubble .icon-close{position:absolute;transition:transform .35s cubic-bezier(.34,1.2,.64,1),opacity .25s}
+#chat-bubble.open .icon-chat{transform:scale(0) rotate(-180deg);opacity:0}
+#chat-bubble .icon-close{transform:scale(0) rotate(180deg);opacity:0}
+#chat-bubble.open .icon-close{transform:scale(1) rotate(0deg);opacity:1}
+#unread-badge{position:absolute;top:-3px;right:-3px;width:20px;height:20px;background:#ff4757;border-radius:50%;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);animation:badge-pop .4s cubic-bezier(.34,1.56,.64,1)}
+#unread-badge.hidden{display:none}
+@keyframes badge-pop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+#chat-window{position:fixed;bottom:102px;right:30px;width:390px;height:600px;background:#0a0a18;border-radius:22px;border:1px solid rgba(0,212,255,.15);box-shadow:0 32px 90px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.04);display:flex;flex-direction:column;overflow:hidden;z-index:9998;transform-origin:bottom right;transform:scale(.8) translateY(30px);opacity:0;pointer-events:none;transition:transform .4s cubic-bezier(.34,1.3,.64,1),opacity .3s ease}
+#chat-window.visible{transform:scale(1) translateY(0);opacity:1;pointer-events:all}
+.chat-header{padding:18px 20px;background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(124,58,237,.06));border-bottom:1px solid rgba(0,212,255,.1);display:flex;align-items:center;gap:12px;flex-shrink:0;position:relative}
+.chat-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4}
+.agent-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;box-shadow:0 0 18px rgba(0,212,255,.3)}
+.agent-avatar::after{content:'';position:absolute;bottom:1px;right:1px;width:11px;height:11px;background:var(--accent3);border-radius:50%;border:2px solid #0a0a18;animation:stat-pulse 2s ease-in-out infinite}
+@keyframes stat-pulse{0%,100%{box-shadow:0 0 0 0 rgba(6,255,165,.5)}50%{box-shadow:0 0 0 4px rgba(6,255,165,0)}}
+.agent-info{flex:1}
+.agent-name{font-size:.9rem;font-weight:600;color:#fff}
+.agent-status{font-size:.7rem;color:var(--accent3);margin-top:2px}
+.header-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text-muted);cursor:none;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.header-close:hover{background:rgba(255,255,255,.09);color:var(--text)}
+.chat-messages{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px}
+.message{display:flex;align-items:flex-end;gap:8px;animation:msg-appear .35s cubic-bezier(.34,1.2,.64,1)}
+@keyframes msg-appear{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.message.user{flex-direction:row-reverse}
+.bubble{max-width:80%;padding:11px 15px;border-radius:18px;font-size:.865rem;line-height:1.6;word-break:break-word}
+.message.user .bubble{background:linear-gradient(135deg,var(--accent),#0095cc);color:#fff;border-bottom-right-radius:4px;box-shadow:0 4px 20px rgba(0,212,255,.2)}
+.message.bot .bubble{background:rgba(255,255,255,.05);color:var(--text);border-bottom-left-radius:4px;border:1px solid rgba(255,255,255,.07)}
+.msg-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.msg-time{font-size:.63rem;color:var(--text-muted);margin-top:5px;font-family:'JetBrains Mono',monospace}
+.message.bot .msg-time{padding-left:34px}
+.message.user .msg-time{text-align:right}
+.typing-indicator{display:flex;align-items:flex-end;gap:8px;animation:msg-appear .3s ease}
+.typing-indicator.hidden{display:none}
+.typing-dots{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:18px;border-bottom-left-radius:4px;padding:13px 16px;display:flex;gap:5px;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:dot-b 1.4s ease-in-out infinite;opacity:.6}
+.dot:nth-child(2){animation-delay:.2s;background:var(--accent2)}
+.dot:nth-child(3){animation-delay:.4s;background:var(--accent3)}
+@keyframes dot-b{0%,80%,100%{transform:scale(.65);opacity:.4}40%{transform:scale(1.1);opacity:1}}
+.plan-picker{padding:12px 16px;flex-shrink:0;border-top:1px solid rgba(0,212,255,.08)}
+.plan-picker-title{font-size:.72rem;font-weight:500;color:var(--text-muted);letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase}
+.plan-pills{display:flex;gap:8px;flex-wrap:wrap}
+.plan-pill{padding:7px 14px;border-radius:20px;border:1px solid rgba(0,212,255,.2);background:rgba(0,212,255,.05);color:var(--accent);font-size:.76rem;font-family:'Outfit',sans-serif;font-weight:500;cursor:none;transition:all .2s;position:relative;overflow:hidden}
+.plan-pill::after{content:'';position:absolute;top:-50%;left:-70%;width:50%;height:200%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.1),transparent);transform:skewX(-15deg)}
+.plan-pill:hover::after{animation:shimmer .5s ease forwards}
+.plan-pill:hover{background:rgba(0,212,255,.15);border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,212,255,.2)}
+.quick-replies{display:flex;flex-wrap:wrap;gap:7px;padding:4px 16px 12px;flex-shrink:0}
+.quick-reply-btn{padding:7px 13px;border-radius:20px;border:1px solid rgba(0,212,255,.2);background:rgba(0,212,255,.05);color:var(--accent);font-size:.76rem;font-family:'Outfit',sans-serif;font-weight:500;cursor:none;transition:all .2s}
+.quick-reply-btn:hover{background:rgba(0,212,255,.12);border-color:var(--accent);transform:translateY(-1px)}
+.chat-input-area{padding:12px 14px 14px;border-top:1px solid rgba(0,212,255,.08);background:rgba(10,10,24,.96);flex-shrink:0}
+.input-row{display:flex;align-items:flex-end;gap:8px;background:rgba(255,255,255,.04);border-radius:14px;padding:8px 12px;border:1px solid rgba(255,255,255,.06);transition:border-color .2s,box-shadow .2s}
+.input-row:focus-within{border-color:rgba(0,212,255,.3);box-shadow:0 0 0 3px rgba(0,212,255,.06)}
+#chat-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Outfit',sans-serif;font-size:.875rem;resize:none;max-height:120px;line-height:1.5;scrollbar-width:none}
+#chat-input::placeholder{color:var(--text-muted)}
+#chat-input::-webkit-scrollbar{display:none}
+#send-btn{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;cursor:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;transition:opacity .2s,transform .15s,box-shadow .2s}
+#send-btn:hover{opacity:.85;box-shadow:0 4px 16px rgba(0,212,255,.35)}
+#send-btn:active{transform:scale(.9)}
+#send-btn:disabled{background:rgba(255,255,255,.08);color:var(--text-muted);cursor:not-allowed}
+.powered-by{text-align:center;font-size:.63rem;color:var(--text-muted);padding:4px 0 3px;opacity:.5}
+.powered-by a{color:var(--accent);text-decoration:none}
+.error-bubble{font-size:.78rem;color:#ff4757;padding:8px 12px;background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:10px;text-align:center}
+
+@media(max-width:480px){
+  nav{padding:14px 18px}.nav-links{gap:2px}.section{padding:60px 22px}
+  .features-page-grid,.pricing-grid,.contact-layout{grid-template-columns:1fr;padding:0 22px 60px}
+  footer{flex-direction:column;gap:14px;padding:28px 22px;text-align:center}
+  #chat-window{width:calc(100vw - 20px);right:10px;bottom:82px;height:72vh}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="bg-canvas"></canvas>
+<div id="page-overlay"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo" onclick="showPage('home',event)">
+    <div class="logo-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    RAJ SERVICES
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" id="nav-home"   onclick="showPage('home',event)"     class="active">Home</a></li>
+    <li><a href="#" id="nav-features" onclick="showPage('features',event)">Features</a></li>
+    <li><a href="#" id="nav-pricing"  onclick="showPage('pricing',event)">Pricing</a></li>
+    <li><a href="#" id="nav-contact"  onclick="showPage('contact',event)">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="openChatWithPlan('Pro','₹1,499/mo')">Get Started</button>
+</nav>
+
+<!-- ═══════════════════════ HOME PAGE ═══════════════════════ -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <div class="hero-badge"><span class="badge-dot"></span>99.99% Uptime Guaranteed</div>
+    <h1>
+      <span class="line1">Powerful Hosting</span>
+      <span class="line2">Built for Speed</span>
+    </h1>
+    <p>Enterprise-grade servers with lightning-fast performance, robust security, and 24/7 AI-powered support — all at a price that makes sense.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" id="hero-trial-btn">Start Free Trial</button>
+      <button class="btn-outline" onclick="showPage('pricing',event)">View Plans →</button>
+    </div>
+    <div class="scroll-hint"><span>SCROLL</span><div class="scroll-line"></div></div>
+  </section>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">99.99%</div><div class="stat-label">Uptime SLA</div></div>
+    <div class="stat-item"><div class="stat-num">12ms</div><div class="stat-label">Avg Latency</div></div>
+    <div class="stat-item"><div class="stat-num">50K+</div><div class="stat-label">Active Clients</div></div>
+    <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label">AI Support</div></div>
+  </div>
+  <footer>
+    <a href="#" class="logo" onclick="showPage('home',event)">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      RAJ SERVICES
+    </a>
+    <ul class="footer-links">
+      <li><a href="#" onclick="showPage('features',event)">Features</a></li>
+      <li><a href="#" onclick="showPage('pricing',event)">Pricing</a></li>
+      <li><a href="#" onclick="showPage('contact',event)">Contact</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 RAJ SERVICES. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════ FEATURES PAGE ═══════════════════════ -->
+<div id="page-features" class="page">
+  <div class="page-hero">
+    <div class="page-hero-label">Our Capabilities</div>
+    <div class="page-hero-title">Everything your <span>servers need</span></div>
+    <p class="page-hero-sub">Built from the ground up for developers, agencies, and enterprises who demand maximum performance and reliability.</p>
+  </div>
+  <div class="features-page-grid">
+    <div class="feature-card" style="--cg:rgba(0,212,255,.1);--fd:0s"><div class="feature-icon">⚡</div><div class="feature-title">NVMe SSD Storage</div><p class="feature-desc">10× faster than traditional SSDs with direct-attach NVMe storage for maximum IOPS and minimal latency on every read/write operation.</p><span class="feature-tag">Up to 10GB/s</span></div>
+    <div class="feature-card" style="--cg:rgba(124,58,237,.12);--fd:.15s"><div class="feature-icon">🛡️</div><div class="feature-title">DDoS Protection</div><p class="feature-desc">Always-on mitigation with 10 Tbps capacity. Advanced filtering and scrubbing centers keep your servers online during even the largest attacks.</p><span class="feature-tag">10 Tbps capacity</span></div>
+    <div class="feature-card" style="--cg:rgba(6,255,165,.08);--fd:.3s"><div class="feature-icon">🌐</div><div class="feature-title">Global CDN</div><p class="feature-desc">200+ edge locations worldwide ensure blazing-fast delivery with intelligent routing that picks the fastest path for every single request.</p><span class="feature-tag">200+ locations</span></div>
+    <div class="feature-card" style="--cg:rgba(0,212,255,.1);--fd:.45s"><div class="feature-icon">🔒</div><div class="feature-title">Free SSL & Backups</div><p class="feature-desc">Automated daily backups with 30-day retention and one-click restore. Free SSL certificates auto-renew so you never go unprotected.</p><span class="feature-tag">30-day retention</span></div>
+    <div class="feature-card" style="--cg:rgba(124,58,237,.12);--fd:.6s"><div class="feature-icon">📊</div><div class="feature-title">Real-time Monitoring</div><p class="feature-desc">Live dashboards with custom alerts, detailed analytics, and uptime tracking. Know exactly what's happening before your users notice anything.</p><span class="feature-tag">Sub-second alerts</span></div>
+    <div class="feature-card" style="--cg:rgba(6,255,165,.08);--fd:.75s"><div class="feature-icon">🤖</div><div class="feature-title">AI Support Bot</div><p class="feature-desc">Instant AI-powered answers 24/7. Complex issues are intelligently detected and automatically routed to the right human expert on our team.</p><span class="feature-tag">Claude AI powered</span></div>
+    <div class="feature-card" style="--cg:rgba(0,212,255,.1);--fd:.9s"><div class="feature-icon">🔄</div><div class="feature-title">Auto-scaling</div><p class="feature-desc">Automatically scale resources up or down based on real-time demand. Never over-pay for idle capacity or struggle during traffic spikes.</p><span class="feature-tag">Instant scaling</span></div>
+    <div class="feature-card" style="--cg:rgba(124,58,237,.12);--fd:1.05s"><div class="feature-icon">🗄️</div><div class="feature-title">Managed Databases</div><p class="feature-desc">MySQL, PostgreSQL, Redis, and MongoDB — fully managed with automated patches, backups, failover, and performance tuning included.</p><span class="feature-tag">4 DB engines</span></div>
+    <div class="feature-card" style="--cg:rgba(6,255,165,.08);--fd:1.2s"><div class="feature-icon">🌍</div><div class="feature-title">Multi-region Deploy</div><p class="feature-desc">Deploy your stack across multiple geographic regions simultaneously for ultra-low latency, data sovereignty compliance, and true redundancy.</p><span class="feature-tag">12 regions</span></div>
+  </div>
+  <footer>
+    <a href="#" class="logo" onclick="showPage('home',event)">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      RAJ SERVICES
+    </a>
+    <ul class="footer-links">
+      <li><a href="#" onclick="showPage('pricing',event)">Pricing</a></li>
+      <li><a href="#" onclick="showPage('contact',event)">Contact</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 RAJ SERVICES. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════ PRICING PAGE ═══════════════════════ -->
+<div id="page-pricing" class="page">
+  <div class="page-hero">
+    <div class="page-hero-label">Pricing</div>
+    <div class="page-hero-title">Simple, <span>transparent</span> pricing</div>
+    <p class="page-hero-sub">No hidden fees. No surprises. Pick a plan and scale whenever you need to — we grow with you.</p>
+  </div>
+  <div class="pricing-page">
+    <div class="billing-toggle">
+      <span class="toggle-label active" id="toggle-monthly">Monthly</span>
+      <div class="toggle-track" id="billing-toggle" onclick="toggleBilling()"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label" id="toggle-annual">Annual</span>
+      <span class="save-badge">SAVE 20%</span>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card" style="--fd:0s">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price" id="price-starter">₹499 <span>/ mo</span></div>
+        <div class="plan-desc">Perfect for small projects and portfolios.</div>
+        <ul class="plan-features"><li>2 vCPU Cores</li><li>4 GB RAM</li><li>50 GB NVMe SSD</li><li>2 TB Bandwidth</li><li>Free SSL</li><li>Email Support</li></ul>
+        <button class="btn-outline plan-btn" style="width:100%;font-size:.875rem" onclick="openChatWithPlan('Starter','₹499/mo')">Choose Starter</button>
+      </div>
+      <div class="pricing-card featured" style="--fd:.25s">
+        <span class="popular-tag">POPULAR</span>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price" id="price-pro">₹1,499 <span>/ mo</span></div>
+        <div class="plan-desc">For growing businesses that need more power.</div>
+        <ul class="plan-features"><li>8 vCPU Cores</li><li>16 GB RAM</li><li>200 GB NVMe SSD</li><li>10 TB Bandwidth</li><li>SSL + Daily Backups</li><li>Priority Support</li></ul>
+        <button class="btn-primary plan-btn" style="width:100%;font-size:.875rem" onclick="openChatWithPlan('Pro','₹1,499/mo')">Choose Pro</button>
+      </div>
+      <div class="pricing-card" style="--fd:.5s">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price">Custom</div>
+        <div class="plan-desc">Dedicated resources for high-traffic workloads.</div>
+        <ul class="plan-features"><li>Dedicated CPU & RAM</li><li>Custom Storage</li><li>Unlimited Bandwidth</li><li>Priority 24/7 Support</li><li>SLA Guarantee</li><li>Dedicated Account Manager</li></ul>
+        <button class="btn-outline plan-btn" style="width:100%;font-size:.875rem" onclick="openChatWithPlan('Enterprise','custom pricing')">Contact Sales</button>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="#" class="logo" onclick="showPage('home',event)">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      RAJ SERVICES
+    </a>
+    <ul class="footer-links">
+      <li><a href="#" onclick="showPage('features',event)">Features</a></li>
+      <li><a href="#" onclick="showPage('contact',event)">Contact</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 RAJ SERVICES. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════ CONTACT PAGE ═══════════════════════ -->
+<div id="page-contact" class="page">
+  <div class="page-hero">
+    <div class="page-hero-label">Get In Touch</div>
+    <div class="page-hero-title">We're here to <span>help you</span></div>
+    <p class="page-hero-sub">Our team is available 24/7. Reach out via chat, email, or phone and we'll get back to you instantly.</p>
+  </div>
+  <div class="contact-layout">
+    <div class="contact-info">
+      <h3>Talk to a real person</h3>
+      <p>Whether you have a pre-sales question, need technical help, or want to discuss an enterprise solution — we're ready.</p>
+      <div class="contact-method"><div class="contact-method-icon">💬</div><div class="contact-method-info"><div class="contact-method-label">Live Chat</div><div class="contact-method-val">Available 24/7 via chat bubble →</div></div></div>
+      <div class="contact-method"><div class="contact-method-icon">📧</div><div class="contact-method-info"><div class="contact-method-label">Email</div><div class="contact-method-val">support@rajservices.in</div></div></div>
+      <div class="contact-method"><div class="contact-method-icon">📞</div><div class="contact-method-info"><div class="contact-method-label">Phone</div><div class="contact-method-val">+91 98765 43210</div></div></div>
+      <div class="contact-method"><div class="contact-method-icon">📍</div><div class="contact-method-info"><div class="contact-method-label">Office</div><div class="contact-method-val">Kottarakkara, Kerala, India</div></div></div>
+    </div>
+    <div class="contact-form">
+      <div class="form-card">
+        <div class="form-title">Send us a message</div>
+        <div class="form-sub">We'll get back to you within a few hours.</div>
+        <div id="contact-form-inner">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">First Name</label><input class="form-input" type="text" placeholder="Raj"/></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" placeholder="Kumar"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="raj@example.com"/></div>
+          <div class="form-group">
+            <label class="form-label">Topic</label>
+            <select class="form-select">
+              <option>Sales Inquiry</option>
+              <option>Technical Support</option>
+              <option>Billing Question</option>
+              <option>Enterprise Plan</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" placeholder="Tell us how we can help…"></textarea></div>
+          <button class="form-submit" onclick="submitForm()">Send Message ✈️</button>
+        </div>
+        <div class="form-success" id="form-success">✅ Message sent! We'll be in touch within a few hours.</div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <a href="#" class="logo" onclick="showPage('home',event)">
+      <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      RAJ SERVICES
+    </a>
+    <ul class="footer-links">
+      <li><a href="#" onclick="showPage('features',event)">Features</a></li>
+      <li><a href="#" onclick="showPage('pricing',event)">Pricing</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 RAJ SERVICES. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- CHATBOT BUBBLE -->
+<button id="chat-bubble" aria-label="Open support chat">
+  <div id="unread-badge">1</div>
+  <svg class="icon-chat" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 15C21 15.53 20.79 16.04 20.41 16.41C20.04 16.79 19.53 17 19 17H7L3 21V5C3 4.47 3.21 3.96 3.59 3.59C3.96 3.21 4.47 3 5 3H19C19.53 3 20.04 3.21 20.41 3.59C20.79 3.96 21 4.47 21 5V15Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <svg class="icon-close" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 5L5 15M5 5L15 15" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+</button>
+
+<!-- CHAT WINDOW -->
+<div id="chat-window" role="dialog" aria-label="RAJ SERVICES Support Chat">
+  <div class="chat-header">
+    <div class="agent-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" fill="white"/></svg></div>
+    <div class="agent-info"><div class="agent-name">RAJ SERVICES</div><div class="agent-status">● Online · Replies instantly</div></div>
+    <button class="header-close" onclick="toggleChat()"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M11 2L2 11M2 2L11 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="typing-indicator hidden" id="typing-indicator">
+    <div class="msg-avatar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" fill="white"/></svg></div>
+    <div class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  </div>
+  <div class="plan-picker" id="plan-picker">
+    <div class="plan-picker-title">✨ Quick Plan Selection</div>
+    <div class="plan-pills">
+      <button class="plan-pill" onclick="selectPlanPill('Starter','₹499/mo')">🚀 Starter — ₹499/mo</button>
+      <button class="plan-pill" onclick="selectPlanPill('Pro','₹1,499/mo')">⚡ Pro — ₹1,499/mo</button>
+      <button class="plan-pill" onclick="selectPlanPill('Enterprise','custom pricing')">🏢 Enterprise</button>
+    </div>
+  </div>
+  <div class="quick-replies" id="quick-replies">
+    <button class="quick-reply-btn" onclick="sendQuick(this)">💳 Billing</button>
+    <button class="quick-reply-btn" onclick="sendQuick(this)">📦 My Order</button>
+    <button class="quick-reply-btn" onclick="sendQuick(this)">🔧 Tech Support</button>
+    <button class="quick-reply-btn" onclick="sendQuick(this)">↩️ Refund</button>
+  </div>
+  <div class="chat-input-area">
+    <div class="input-row">
+      <textarea id="chat-input" rows="1" placeholder="Ask me anything…"></textarea>
+      <button id="send-btn" onclick="sendMessage()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </div>
+  <div class="powered-by">Powered by <a href="https://anthropic.com" target="_blank">Claude AI</a></div>
+</div>
+
+<script>
+// ── CONFIG ──
+const CONFIG = {
+  apiKey: 'YOUR_API_KEY_HERE',
+  systemPrompt: `You are a helpful, friendly customer support agent for RAJ SERVICES, a premium web hosting company in India based in Kottarakkara, Kerala.
+Be concise (2-4 sentences max unless more detail is truly needed). Be solution-focused and empathetic.
+Plans: Starter (₹499/mo - 2 vCPU, 4GB RAM, 50GB NVMe, 2TB bandwidth, free SSL), Pro (₹1499/mo - 8 vCPU, 16GB RAM, 200GB NVMe, 10TB bandwidth, SSL + daily backups), Enterprise (custom pricing - dedicated resources, unlimited bandwidth, priority support, SLA).
+Free trial: 7 days free on Starter or Pro. If you cannot resolve something, escalate to a human. Never make up details.`,
+  greeting: "Hey there! 👋 Welcome to **RAJ SERVICES** support. I can help you choose a plan, answer billing questions, or provide technical help. What can I do for you today?",
+  model: 'claude-sonnet-4-20250514',
+};
+
+// ── Cursor ──
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function anim(){cur.style.left=mx+'px';cur.style.top=my+'px';rx+=(mx-rx)*.13;ry+=(my-ry)*.13;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+
+// ── Canvas ──
+const cv=document.getElementById('bg-canvas'),ctx2=cv.getContext('2d');
+let W,H,pts=[];
+function rsz(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+rsz();window.addEventListener('resize',rsz);
+class Pt{constructor(){this.re();}re(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*1.4+.3;this.vx=(Math.random()-.5)*.35;this.vy=(Math.random()-.5)*.35;this.a=Math.random()*.5+.1;this.c=Math.random()>.5?'0,212,255':'124,58,237';}}
+for(let i=0;i<130;i++)pts.push(new Pt());
+const orbs=[{px:.18,py:.28,r:320,c:'rgba(0,212,255,.055)',s:.00028},{px:.82,py:.72,r:380,c:'rgba(124,58,237,.065)',s:-.00035},{px:.5,py:.12,r:240,c:'rgba(6,255,165,.04)',s:.00018}];
+function frame(t){
+  ctx2.clearRect(0,0,W,H);
+  ctx2.fillStyle='rgba(0,212,255,.16)';
+  for(let x=0;x<W;x+=50)for(let y=0;y<H;y+=50){ctx2.beginPath();ctx2.arc(x,y,.65,0,Math.PI*2);ctx2.fill();}
+  orbs.forEach(o=>{const cx=(o.px+Math.sin(t*o.s*1000)*.07)*W,cy=(o.py+Math.cos(t*o.s*800)*.06)*H;const g=ctx2.createRadialGradient(cx,cy,0,cx,cy,o.r);g.addColorStop(0,o.c);g.addColorStop(1,'transparent');ctx2.fillStyle=g;ctx2.beginPath();ctx2.arc(cx,cy,o.r,0,Math.PI*2);ctx2.fill();});
+  for(let i=0;i<pts.length;i++){const p=pts[i];ctx2.beginPath();ctx2.arc(p.x,p.y,p.r,0,Math.PI*2);ctx2.fillStyle=`rgba(${p.c},${p.a})`;ctx2.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W||p.y<0||p.y>H)p.re();for(let j=i+1;j<pts.length;j++){const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);if(d<85){ctx2.strokeStyle=`rgba(0,212,255,${(1-d/85)*.055})`;ctx2.lineWidth=.5;ctx2.beginPath();ctx2.moveTo(p.x,p.y);ctx2.lineTo(q.x,q.y);ctx2.stroke();}}}
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ── Page Router ──
+let currentPage = 'home';
+const overlay = document.getElementById('page-overlay');
+
+function showPage(name, e) {
+  if(e) e.preventDefault();
+  if(name === currentPage) return;
+  // Flash overlay
+  overlay.classList.add('flash');
+  setTimeout(()=>overlay.classList.remove('flash'), 300);
+  // Hide current
+  const old = document.getElementById('page-'+currentPage);
+  old.classList.remove('active');
+  old.classList.add('exit-up');
+  setTimeout(()=>old.classList.remove('exit-up'), 500);
+  // Show new
+  currentPage = name;
+  const next = document.getElementById('page-'+name);
+  next.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  // Update nav
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  const navEl = document.getElementById('nav-'+name);
+  if(navEl) navEl.classList.add('active');
+  // Re-run scroll observer for new page
+  setTimeout(triggerObservers, 100);
+}
+
+// ── Scroll observer ──
+function triggerObservers(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('visible'),i*90);});
+  },{threshold:.1});
+  document.querySelectorAll('.stat-item:not(.visible),.feature-card:not(.visible),.pricing-card:not(.visible),.contact-method:not(.visible)').forEach(el=>obs.observe(el));
+}
+triggerObservers();
+
+// ── Billing toggle ──
+let isAnnual = false;
+const prices = {starter:{m:'₹499',a:'₹399'},pro:{m:'₹1,499',a:'₹1,199'}};
+function toggleBilling(){
+  isAnnual=!isAnnual;
+  document.getElementById('billing-toggle').classList.toggle('on',isAnnual);
+  document.getElementById('toggle-monthly').classList.toggle('active',!isAnnual);
+  document.getElementById('toggle-annual').classList.toggle('active',isAnnual);
+  const s=isAnnual?prices.starter.a:prices.starter.m;
+  const p=isAnnual?prices.pro.a:prices.pro.m;
+  document.getElementById('price-starter').innerHTML=`${s} <span>/ mo</span>`;
+  document.getElementById('price-pro').innerHTML=`${p} <span>/ mo</span>`;
+}
+
+// ── Chatbot ──
+let isOpen=false,isTyping=false,history=[],greetingShown=false;
+const bubble=document.getElementById('chat-bubble'),chatWin=document.getElementById('chat-window');
+const msgsEl=document.getElementById('chat-messages'),inputEl=document.getElementById('chat-input');
+const sendBtn=document.getElementById('send-btn'),typingEl=document.getElementById('typing-indicator');
+const badge=document.getElementById('unread-badge'),qrEl=document.getElementById('quick-replies'),planPicker=document.getElementById('plan-picker');
+
+function openChat(){
+  if(!isOpen){isOpen=true;chatWin.classList.add('visible');bubble.classList.add('open');badge.classList.add('hidden');if(!greetingShown){greetingShown=true;setTimeout(()=>addBot(CONFIG.greeting),420);}setTimeout(()=>inputEl.focus(),420);}
+}
+function toggleChat(){
+  isOpen=!isOpen;chatWin.classList.toggle('visible',isOpen);bubble.classList.toggle('open',isOpen);badge.classList.add('hidden');
+  if(isOpen&&!greetingShown){greetingShown=true;setTimeout(()=>addBot(CONFIG.greeting),420);}
+  if(isOpen)setTimeout(()=>inputEl.focus(),420);
+}
+bubble.addEventListener('click',toggleChat);
+
+document.getElementById('hero-trial-btn').addEventListener('click',()=>{
+  openChat();
+  setTimeout(()=>{if(!history.length){inputEl.value="I'd like to start my free trial! Which plan should I choose?";setTimeout(sendMessage,600);}},800);
+});
+
+function openChatWithPlan(planName,price){
+  openChat();
+  setTimeout(()=>{if(!isTyping){inputEl.value=`I'm interested in the ${planName} plan (${price}). Can you help me get started?`;setTimeout(sendMessage,500);}},700);
+}
+function selectPlanPill(planName,price){
+  planPicker.style.display='none';
+  inputEl.value=`I want to sign up for the ${planName} plan at ${price}. What do I need to do?`;
+  sendMessage();
+}
+
+const timeNow=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmt=s=>esc(s).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+
+function addUser(text){const w=document.createElement('div');w.className='message user';w.innerHTML=`<div><div class="bubble">${esc(text)}</div><div class="msg-time">${timeNow()}</div></div>`;msgsEl.appendChild(w);qrEl.style.display='none';planPicker.style.display='none';scrollB();}
+function addBot(text){const w=document.createElement('div');w.className='message bot';w.innerHTML=`<div class="msg-avatar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" fill="white"/></svg></div><div><div class="bubble">${fmt(text)}</div><div class="msg-time">${timeNow()}</div></div>`;msgsEl.appendChild(w);scrollB();}
+function addErr(msg){const e=document.createElement('div');e.className='error-bubble';e.textContent=msg;msgsEl.appendChild(e);scrollB();}
+function scrollB(){msgsEl.scrollTop=msgsEl.scrollHeight;}
+
+async function sendMessage(){
+  const text=inputEl.value.trim();if(!text||isTyping)return;
+  inputEl.value='';inputEl.style.height='auto';
+  addUser(text);history.push({role:'user',content:text});
+  await getReply();
+}
+async function getReply(){
+  if(isTyping)return;isTyping=true;sendBtn.disabled=true;
+  typingEl.classList.remove('hidden');scrollB();
+  await new Promise(r=>setTimeout(r,700+Math.random()*500));
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':CONFIG.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:CONFIG.model,max_tokens:512,system:CONFIG.systemPrompt,messages:history})});
+    if(!res.ok){const e=await res.json().catch(()=>{});throw new Error(e?.error?.message||`HTTP ${res.status}`);}
+    const data=await res.json();const reply=data.content?.[0]?.text||"Sorry, I couldn't get a response.";
+    history.push({role:'assistant',content:reply});typingEl.classList.add('hidden');addBot(reply);
+  }catch(err){
+    typingEl.classList.add('hidden');
+    if(CONFIG.apiKey==='YOUR_API_KEY_HERE')addErr('⚙️ Add your Anthropic API key in CONFIG.apiKey to enable AI chat.');
+    else addErr('Something went wrong. Please try again or contact support directly.');
+  }finally{isTyping=false;sendBtn.disabled=false;inputEl.focus();}
+}
+function sendQuick(btn){const map={'💳 Billing':'I have a billing question','📦 My Order':'I want to track my order','🔧 Tech Support':'I need technical help','↩️ Refund':'I want to request a refund'};inputEl.value=map[btn.textContent]||btn.textContent;sendMessage();}
+inputEl.addEventListener('input',()=>{inputEl.style.height='auto';inputEl.style.height=Math.min(inputEl.scrollHeight,120)+'px';});
+inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
+
+// ── Contact form ──
+function submitForm(){
+  document.getElementById('contact-form-inner').style.display='none';
+  document.getElementById('form-success').classList.add('show');
+}
+</script>
+</body>
+</html>
